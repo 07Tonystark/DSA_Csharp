@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C# DSA Data Structures — Learning Guide</title>
+  <style>
+    :root, [data-theme="light"] {
+      --bg: #f4f6fb; --surface: #fff; --surface2: #eef1f8;
+      --text: #1a1d2e; --text-muted: #5a6278; --border: #d8deea;
+      --accent: #68217A; --accent2: #00BCD4; --accent-glow: rgba(104,33,122,.15);
+      --code-bg: #1e1e2e; --code-text: #cdd6f4;
+      --success: #16a34a; --warning: #d97706; --danger: #dc2626;
+      --shadow: 0 4px 24px rgba(0,0,0,.08);
+      --sidebar-w: 280px;
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d2e; --surface2: #252836;
+      --text: #e8eaf0; --text-muted: #9499b0; --border: #363a4f;
+      --accent: #c586c0; --accent2: #4ec9b0; --accent-glow: rgba(197,134,192,.2);
+      --code-bg: #0d0d14; --code-text: #d4d4d4;
+      --shadow: 0 4px 24px rgba(0,0,0,.4);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    #progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0; z-index: 1000; transition: width .1s; }
+    .top-bar { position: sticky; top: 0; z-index: 900; background: var(--surface); border-bottom: 1px solid var(--border); padding: .75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: var(--shadow); }
+    .top-bar h1 { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .top-actions { display: flex; align-items: center; gap: .75rem; }
+    .btn { padding: .4rem .85rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); cursor: pointer; font-size: .85rem; transition: all .2s; text-decoration: none; display: inline-flex; align-items: center; gap: .4rem; }
+    .btn:hover { border-color: var(--accent); background: var(--accent-glow); }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { opacity: .9; }
+    .theme-toggle { width: 44px; height: 24px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); cursor: pointer; position: relative; }
+    .theme-toggle::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); top: 2px; left: 2px; transition: transform .2s; }
+    [data-theme="light"] .theme-toggle::after { transform: translateX(20px); }
+    .layout { display: flex; min-height: calc(100vh - 56px); }
+    .sidebar { width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; padding: 1rem 0; flex-shrink: 0; transition: transform .3s; }
+    .sidebar-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); padding: .5rem 1.25rem; font-weight: 600; }
+    .sidebar a { display: block; padding: .45rem 1.25rem; color: var(--text-muted); text-decoration: none; font-size: .875rem; border-left: 3px solid transparent; transition: all .15s; }
+    .sidebar a:hover, .sidebar a.active { color: var(--accent); background: var(--accent-glow); border-left-color: var(--accent); }
+    .main { flex: 1; padding: 2rem; max-width: 900px; }
+    .hamburger { display: none; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text); }
+    .hero { background: linear-gradient(135deg, var(--accent-glow), transparent); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
+    .hero h2 { font-size: 1.75rem; margin-bottom: .5rem; }
+    .hero p { color: var(--text-muted); }
+    .badge-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+    .badge { font-size: .75rem; padding: .2rem .6rem; border-radius: 20px; font-weight: 600; font-family: monospace; }
+    .badge-o1 { background: rgba(22,163,74,.15); color: var(--success); }
+    .badge-ologn { background: rgba(0,188,212,.15); color: var(--accent2); }
+    .badge-on { background: rgba(217,119,6,.15); color: var(--warning); }
+    .badge-on2 { background: rgba(220,38,38,.15); color: var(--danger); }
+    .accordion { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+    .accordion-header { width: 100%; padding: 1rem 1.25rem; background: var(--surface); border: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; color: var(--text); font-size: 1rem; font-weight: 600; text-align: left; transition: background .15s; }
+    .accordion-header:hover { background: var(--surface2); }
+    .accordion-header .num { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .8rem; margin-right: .75rem; flex-shrink: 0; }
+    .accordion-header .title-wrap { display: flex; align-items: center; flex: 1; }
+    .accordion-header .chevron { transition: transform .2s; color: var(--text-muted); }
+    .accordion.open .accordion-header .chevron { transform: rotate(180deg); }
+    .accordion-body { display: none; padding: 0 1.25rem 1.25rem; }
+    .accordion.open .accordion-body { display: block; }
+    .tabs { display: flex; gap: .25rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; flex-wrap: wrap; }
+    .tab-btn { padding: .5rem 1rem; border: none; background: none; color: var(--text-muted); cursor: pointer; font-size: .85rem; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s; }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .code-wrap { position: relative; margin: .75rem 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    .code-wrap pre { background: var(--code-bg); color: var(--code-text); padding: 1rem 1.25rem; overflow-x: auto; font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; font-size: .82rem; line-height: 1.55; margin: 0; }
+    .copy-btn { position: absolute; top: .5rem; right: .5rem; padding: .25rem .6rem; font-size: .75rem; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #ccc; border-radius: 6px; cursor: pointer; }
+    .copy-btn.copied { background: var(--success); color: #fff; border-color: var(--success); }
+    .kw { color: #569cd6; } .type { color: #4ec9b0; } .str { color: #ce9178; } .cmt { color: #6a9955; } .num { color: #b5cea8; } .fn { color: #dcdcaa; }
+    .callout { border-radius: 10px; padding: .85rem 1rem; margin: .75rem 0; font-size: .875rem; border-left: 4px solid; }
+    .callout-tip { background: rgba(0,188,212,.08); border-color: var(--accent2); }
+    .callout-warn { background: rgba(217,119,6,.08); border-color: var(--warning); }
+    .callout-title { font-weight: 700; margin-bottom: .25rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .875rem; margin: .75rem 0; }
+    th, td { padding: .6rem .75rem; border: 1px solid var(--border); text-align: left; }
+    th { background: var(--surface2); font-weight: 600; }
+    .method-table td:first-child { font-family: monospace; color: var(--accent2); white-space: nowrap; }
+    .method-table td:nth-child(2) { font-family: monospace; font-size: .8rem; }
+    .section-intro { color: var(--text-muted); font-size: .9rem; margin-bottom: .75rem; }
+    .pattern-section { margin-top: 2rem; padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+    .pattern-section h3 { margin-bottom: 1rem; }
+    .toolkit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .75rem; margin: 1rem 0; }
+    .toolkit-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: .75rem; text-align: center; font-size: .8rem; }
+    .toolkit-item strong { display: block; font-family: monospace; color: var(--accent); margin-bottom: .25rem; }
+    @media (max-width: 768px) {
+      .hamburger { display: block; }
+      .sidebar { position: fixed; top: 56px; left: 0; z-index: 800; transform: translateX(-100%); height: calc(100vh - 56px); }
+      .sidebar.open { transform: translateX(0); }
+      .main { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress-bar"></div>
+  <header class="top-bar">
+    <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+    <h1>C# DSA Data Structures</h1>
+    <div class="top-actions">
+      <a href="csharp-dsa-cheatsheet.html" class="btn btn-primary">📋 Cheatsheet</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+    </div>
+  </header>
+  <div class="layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-label">Start Here</div>
+      <a href="#intro">Introduction</a>
+      <div class="sidebar-label">Built-in Collections</div>
+      <a href="#ds-1">Arrays</a>
+      <a href="#ds-2">List&lt;T&gt;</a>
+      <a href="#ds-3">Dictionary&lt;K,V&gt;</a>
+      <a href="#ds-4">HashSet&lt;T&gt;</a>
+      <a href="#ds-5">Stack&lt;T&gt;</a>
+      <a href="#ds-6">Queue&lt;T&gt;</a>
+      <a href="#ds-7">PriorityQueue</a>
+      <a href="#ds-8">Sorted Collections</a>
+      <div class="sidebar-label">Supporting Types</div>
+      <a href="#ds-9">LinkedList&lt;T&gt;</a>
+      <a href="#ds-10">StringBuilder</a>
+      <div class="sidebar-label">Custom Structures</div>
+      <a href="#ds-11">ListNode</a>
+      <a href="#ds-12">TreeNode</a>
+      <a href="#ds-13">Graph</a>
+      <a href="#ds-14">Trie</a>
+      <a href="#ds-15">Union-Find</a>
+      <div class="sidebar-label">Reference</div>
+      <a href="#patterns">Pattern Index</a>
+    </nav>
+    <main class="main" id="main-content">
+      <section id="intro" class="hero">
+        <h2>Master C# Collections for DSA</h2>
+        <p>Your interactive guide to every data structure you need for coding interviews — with examples, methods, complexity, and real problem patterns.</p>
+        <div class="badge-row">
+          <span class="badge badge-o1">O(1) — instant access</span>
+          <span class="badge badge-ologn">O(log n) — tree/heap</span>
+          <span class="badge badge-on">O(n) — linear scan</span>
+          <span class="badge badge-on2">O(n²) — nested loops</span>
+        </div>
+        <div class="callout callout-tip" style="margin-top:1rem">
+          <div class="callout-title">How to use this guide</div>
+          Click any section in the sidebar. Each data structure has 4 tabs: Overview, Code Example, Key Methods, and DSA Use Cases. Open accordions to explore. Use the Cheatsheet for quick lookup during practice.
+        </div>
+        <h3 style="margin-top:1.5rem;margin-bottom:.5rem">Your DSA Toolkit at a Glance</h3>
+        <div class="toolkit-grid">
+          <div class="toolkit-item"><strong>Array</strong>Two pointers</div>
+          <div class="toolkit-item"><strong>List&lt;T&gt;</strong>Dynamic array</div>
+          <div class="toolkit-item"><strong>Dictionary</strong>Hash map</div>
+          <div class="toolkit-item"><strong>HashSet</strong>Fast lookup</div>
+          <div class="toolkit-item"><strong>Stack</strong>DFS / mono</div>
+          <div class="toolkit-item"><strong>Queue</strong>BFS</div>
+          <div class="toolkit-item"><strong>PriorityQueue</strong>Heap / Top K</div>
+          <div class="toolkit-item"><strong>Union-Find</strong>Components</div>
+        </div>
+      </section>
+
+      <!-- DS 1: Arrays -->
+      <div class="accordion open" id="ds-1">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">1</span>Arrays — T[]</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds1-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds1-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds1-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds1-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds1-overview">
+            <p class="section-intro">Fixed-size contiguous memory. Fastest random access. Foundation for two pointers, sliding window, and binary search on sorted arrays.</p>
+            <span class="badge badge-o1">Access O(1)</span>
+            <span class="badge badge-on">Search O(n)</span>
+            <span class="badge badge-ologn">Sort O(n log n)</span>
+          </div>
+          <div class="tab-panel" id="ds1-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="cmt">// Two pointers — find pair with target sum (sorted array)</span>
+<span class="type">int</span>[] nums = { <span class="num">1</span>, <span class="num">2</span>, <span class="num">4</span>, <span class="num">6</span>, <span class="num">8</span> };
+<span class="type">int</span> left = <span class="num">0</span>, right = nums.Length - <span class="num">1</span>, target = <span class="num">10</span>;
+<span class="kw">while</span> (left &lt; right) {
+    <span class="type">int</span> sum = nums[left] + nums[right];
+    <span class="kw">if</span> (sum == target) { <span class="cmt">/* found */</span> <span class="kw">break</span>; }
+    <span class="kw">else if</span> (sum &lt; target) left++;
+    <span class="kw">else</span> right--;
+}
+
+<span class="cmt">// Binary search on sorted array</span>
+<span class="type">int</span> idx = <span class="type">Array</span>.<span class="fn">BinarySearch</span>(nums, target);
+<span class="kw">if</span> (idx &lt; <span class="num">0</span>) idx = ~idx; <span class="cmt">// insertion point if not found</span></pre></div>
+          </div>
+          <div class="tab-panel" id="ds1-methods">
+            <table class="method-table"><tr><th>Method</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>arr[i]</td><td>O(1)</td><td>Index access</td></tr>
+            <tr><td>arr.Length</td><td>O(1)</td><td>Fixed size</td></tr>
+            <tr><td>Array.Sort(arr)</td><td>O(n log n)</td><td>In-place sort</td></tr>
+            <tr><td>Array.BinarySearch(arr, x)</td><td>O(log n)</td><td>Requires sorted array</td></tr>
+            <tr><td>Array.Reverse(arr)</td><td>O(n)</td><td>Reverse in place</td></tr>
+            <tr><td>Array.Fill(arr, val)</td><td>O(n)</td><td>Fill all elements</td></tr>
+            <tr><td>Array.Copy(src, dst, len)</td><td>O(n)</td><td>Copy elements</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds1-dsa">
+            <ul><li>Two pointers (palindrome, pair sum, container with most water)</li><li>Sliding window (max subarray, longest substring)</li><li>Prefix sums (range sum queries)</li><li>Binary search (search rotated array, find peak)</li><li>In-place rearrangement (Dutch flag, move zeroes)</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 2: List -->
+      <div class="accordion" id="ds-2">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">2</span>List&lt;T&gt; — Dynamic Array</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds2-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds2-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds2-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds2-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds2-overview">
+            <p class="section-intro">Resizable array backed by internal buffer. Default choice when size is unknown. Amortized O(1) append at end.</p>
+            <div class="callout callout-tip"><div class="callout-title">Capacity vs Count</div>Count = elements stored. Capacity = allocated slots. Add() doubles capacity when full.</div>
+          </div>
+          <div class="tab-panel" id="ds2-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="kw">var</span> result = <span class="kw">new</span> <span class="type">List</span>&lt;<span class="type">int</span>&gt;();
+<span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i &lt; n; i++)
+    result.<span class="fn">Add</span>(i * <span class="num">2</span>);
+
+result.<span class="fn">Sort</span>();                          <span class="cmt">// O(n log n)</span>
+<span class="type">int</span> idx = result.<span class="fn">BinarySearch</span>(target);  <span class="cmt">// O(log n), must be sorted</span>
+result.<span class="fn">RemoveAt</span>(result.Count - <span class="num">1</span>);         <span class="cmt">// O(1) at end, O(n) in middle</span></pre></div>
+          </div>
+          <div class="tab-panel" id="ds2-methods">
+            <table class="method-table"><tr><th>Method</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>Add(x)</td><td>O(1)*</td><td>Append to end</td></tr>
+            <tr><td>Insert(i, x)</td><td>O(n)</td><td>Insert at index</td></tr>
+            <tr><td>RemoveAt(i)</td><td>O(n)</td><td>Remove by index</td></tr>
+            <tr><td>Remove(x)</td><td>O(n)</td><td>Remove first occurrence</td></tr>
+            <tr><td>Sort()</td><td>O(n log n)</td><td>Sort in place</td></tr>
+            <tr><td>BinarySearch(x)</td><td>O(log n)</td><td>Search sorted list</td></tr>
+            <tr><td>Contains(x)</td><td>O(n)</td><td>Linear search</td></tr>
+            <tr><td>Count, Clear</td><td>O(1)/O(n)</td><td>Size / remove all</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds2-dsa">
+            <ul><li>Building result lists (permutations, combinations)</li><li>Dynamic programming tabulation with 1D list</li><li>Merge intervals after sorting</li><li>When you need resize but not hash lookup</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 3: Dictionary -->
+      <div class="accordion" id="ds-3">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">3</span>Dictionary&lt;K,V&gt; — Hash Map</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds3-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds3-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds3-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds3-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds3-overview">
+            <p class="section-intro">Key-value store with average O(1) operations. The most used structure in DSA for lookups, counting, caching, and graph adjacency.</p>
+          </div>
+          <div class="tab-panel" id="ds3-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="cmt">// Frequency count</span>
+<span class="kw">var</span> freq = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">char</span>, <span class="type">int</span>&gt;();
+<span class="kw">foreach</span> (<span class="type">char</span> c <span class="kw">in</span> s)
+    freq[c] = freq.<span class="fn">GetValueOrDefault</span>(c, <span class="num">0</span>) + <span class="num">1</span>;
+
+<span class="cmt">// Two Sum — store complement</span>
+<span class="kw">var</span> seen = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">int</span>, <span class="type">int</span>&gt;();
+<span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i &lt; nums.Length; i++) {
+    <span class="type">int</span> need = target - nums[i];
+    <span class="kw">if</span> (seen.<span class="fn">TryGetValue</span>(need, <span class="kw">out</span> <span class="type">int</span> j))
+        <span class="kw">return</span> <span class="kw">new</span>[] { j, i };
+    seen[nums[i]] = i;
+}
+
+<span class="cmt">// Memoization with tuple key</span>
+<span class="kw">var</span> memo = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;(<span class="type">int</span>, <span class="type">int</span>), <span class="type">int</span>&gt;();</pre></div>
+          </div>
+          <div class="tab-panel" id="ds3-methods">
+            <table class="method-table"><tr><th>Method</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>dict[key] = val</td><td>O(1)*</td><td>Add or update</td></tr>
+            <tr><td>TryGetValue(k, out v)</td><td>O(1)*</td><td>Safe lookup</td></tr>
+            <tr><td>ContainsKey(k)</td><td>O(1)*</td><td>Check existence</td></tr>
+            <tr><td>GetValueOrDefault(k, d)</td><td>O(1)*</td><td>Default if missing</td></tr>
+            <tr><td>Remove(k)</td><td>O(1)*</td><td>Delete key</td></tr>
+            <tr><td>Keys / Values</td><td>O(n)</td><td>Iterate collections</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds3-dsa">
+            <ul><li>Two Sum, group anagrams, subarray sum</li><li>Memoization in DP (top-down)</li><li>Graph adjacency: Dictionary&lt;int, List&lt;int&gt;&gt;</li><li>Character/element frequency maps</li><li>LRU cache (with LinkedList combo)</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 4: HashSet -->
+      <div class="accordion" id="ds-4">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">4</span>HashSet&lt;T&gt; — Hash Set</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds4-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds4-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds4-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds4-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds4-overview">
+            <p class="section-intro">Unordered collection of unique elements. O(1) average Contains — perfect for visited tracking and deduplication.</p>
+          </div>
+          <div class="tab-panel" id="ds4-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="kw">var</span> visited = <span class="kw">new</span> <span class="type">HashSet</span>&lt;<span class="type">int</span>&gt;();
+<span class="kw">if</span> (!visited.<span class="fn">Add</span>(node)) <span class="kw">continue</span>; <span class="cmt">// Add returns false if already exists</span>
+
+<span class="cmt">// Cycle detection in linked list</span>
+<span class="kw">var</span> seen = <span class="kw">new</span> <span class="type">HashSet</span>&lt;<span class="type">ListNode</span>&gt;();
+<span class="kw">while</span> (head != <span class="kw">null</span>) {
+    <span class="kw">if</span> (!seen.<span class="fn">Add</span>(head)) <span class="kw">return</span> <span class="kw">true</span>; <span class="cmt">// cycle</span>
+    head = head.next;
+}</pre></div>
+          </div>
+          <div class="tab-panel" id="ds4-methods">
+            <table class="method-table"><tr><th>Method</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>Add(x)</td><td>O(1)*</td><td>Insert; returns false if exists</td></tr>
+            <tr><td>Contains(x)</td><td>O(1)*</td><td>Membership test</td></tr>
+            <tr><td>Remove(x)</td><td>O(1)*</td><td>Delete element</td></tr>
+            <tr><td>UnionWith(other)</td><td>O(n)</td><td>Union in place</td></tr>
+            <tr><td>IntersectWith(other)</td><td>O(n)</td><td>Intersection in place</td></tr>
+            <tr><td>ExceptWith(other)</td><td>O(n)</td><td>Set difference</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds4-dsa">
+            <ul><li>BFS/DFS visited nodes</li><li>Detect duplicates, cycle detection</li><li>Longest consecutive sequence</li><li>Word break / valid sudoku checks</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 5: Stack -->
+      <div class="accordion" id="ds-5">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">5</span>Stack&lt;T&gt; — LIFO</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds5-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds5-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds5-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds5-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds5-overview">
+            <p class="section-intro">Last-In-First-Out. Essential for DFS (iterative), parentheses validation, and monotonic stack patterns.</p>
+          </div>
+          <div class="tab-panel" id="ds5-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="cmt">// Valid parentheses</span>
+<span class="kw">var</span> stack = <span class="kw">new</span> <span class="type">Stack</span>&lt;<span class="type">char</span>&gt;();
+<span class="kw">foreach</span> (<span class="type">char</span> c <span class="kw">in</span> s) {
+    <span class="kw">if</span> (c == <span class="str">'('</span> || c == <span class="str">'['</span> || c == <span class="str">'{'</span>) stack.<span class="fn">Push</span>(c);
+    <span class="kw">else if</span> (stack.Count == <span class="num">0</span> || stack.<span class="fn">Pop</span>() != Match(c)) <span class="kw">return</span> <span class="kw">false</span>;
+}
+<span class="kw">return</span> stack.Count == <span class="num">0</span>;
+
+<span class="cmt">// Monotonic stack — next greater element</span>
+<span class="kw">var</span> st = <span class="kw">new</span> <span class="type">Stack</span>&lt;<span class="type">int</span>&gt;();
+<span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i &lt; nums.Length; i++) {
+    <span class="kw">while</span> (st.Count &gt; <span class="num">0</span> &amp;&amp; nums[st.Peek()] &lt; nums[i]) {
+        <span class="type">int</span> idx = st.<span class="fn">Pop</span>();
+        result[idx] = nums[i];
+    }
+    st.<span class="fn">Push</span>(i);
+}</pre></div>
+          </div>
+          <div class="tab-panel" id="ds5-methods">
+            <table class="method-table"><tr><th>Method</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>Push(x)</td><td>O(1)</td><td>Add to top</td></tr>
+            <tr><td>Pop()</td><td>O(1)</td><td>Remove and return top</td></tr>
+            <tr><td>Peek()</td><td>O(1)</td><td>View top without removing</td></tr>
+            <tr><td>Count</td><td>O(1)</td><td>Number of elements</td></tr>
+            <tr><td>Clear()</td><td>O(n)</td><td>Remove all</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds5-dsa">
+            <ul><li>Valid parentheses, evaluate RPN</li><li>Monotonic stack (next greater/smaller)</li><li>Iterative DFS, path tracking</li><li>Min stack design, histogram area</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 6: Queue -->
+      <div class="accordion" id="ds-6">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">6</span>Queue&lt;T&gt; — FIFO</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds6-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds6-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds6-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds6-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds6-overview">
+            <p class="section-intro">First-In-First-Out. The go-to structure for BFS, level-order traversal, and shortest path in unweighted graphs.</p>
+          </div>
+          <div class="tab-panel" id="ds6-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="cmt">// BFS — shortest path in unweighted graph</span>
+<span class="kw">var</span> queue = <span class="kw">new</span> <span class="type">Queue</span>&lt;<span class="type">int</span>&gt;();
+<span class="kw">var</span> visited = <span class="kw">new</span> <span class="type">HashSet</span>&lt;<span class="type">int</span>&gt;();
+queue.<span class="fn">Enqueue</span>(start);
+visited.<span class="fn">Add</span>(start);
+<span class="kw">while</span> (queue.Count &gt; <span class="num">0</span>) {
+    <span class="type">int</span> node = queue.<span class="fn">Dequeue</span>();
+    <span class="kw">foreach</span> (<span class="type">int</span> neighbor <span class="kw">in</span> graph[node]) {
+        <span class="kw">if</span> (visited.<span class="fn">Add</span>(neighbor))
+            queue.<span class="fn">Enqueue</span>(neighbor);
+    }
+}
+
+<span class="cmt">// Level-order tree traversal</span>
+<span class="kw">var</span> q = <span class="kw">new</span> <span class="type">Queue</span>&lt;<span class="type">TreeNode</span>&gt;();
+q.<span class="fn">Enqueue</span>(root);
+<span class="kw">while</span> (q.Count &gt; <span class="num">0</span>) {
+    <span class="type">int</span> levelSize = q.Count;
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i &lt; levelSize; i++) {
+        <span class="kw">var</span> node = q.<span class="fn">Dequeue</span>();
+        <span class="kw">if</span> (node.left != <span class="kw">null</span>) q.<span class="fn">Enqueue</span>(node.left);
+        <span class="kw">if</span> (node.right != <span class="kw">null</span>) q.<span class="fn">Enqueue</span>(node.right);
+    }
+}</pre></div>
+          </div>
+          <div class="tab-panel" id="ds6-methods">
+            <table class="method-table"><tr><th>Method</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>Enqueue(x)</td><td>O(1)</td><td>Add to rear</td></tr>
+            <tr><td>Dequeue()</td><td>O(1)</td><td>Remove from front</td></tr>
+            <tr><td>Peek()</td><td>O(1)</td><td>View front element</td></tr>
+            <tr><td>Count</td><td>O(1)</td><td>Queue size</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds6-dsa">
+            <ul><li>BFS on graphs and grids</li><li>Level-order tree traversal</li><li>Shortest path (unweighted)</li><li>Sliding window max (with deque)</li><li>Topological sort (Kahn's with queue)</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 7: PriorityQueue -->
+      <div class="accordion" id="ds-7">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">7</span>PriorityQueue&lt;TElement,TPriority&gt; — Heap</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds7-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds7-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds7-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds7-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds7-overview">
+            <p class="section-intro">Min-heap by default (.NET 6+). Always returns smallest priority first. Use for Top K, merge K lists, Dijkstra.</p>
+            <div class="callout callout-warn"><div class="callout-title">Max-Heap Trick</div>Negate priorities for max-heap: Enqueue(item, -priority). Or pass Comparer.Create((a,b) =&gt; b.CompareTo(a)).</div>
+          </div>
+          <div class="tab-panel" id="ds7-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="cmt">// Top K largest — min-heap of size k</span>
+<span class="kw">var</span> pq = <span class="kw">new</span> <span class="type">PriorityQueue</span>&lt;<span class="type">int</span>, <span class="type">int</span>&gt;();
+<span class="kw">foreach</span> (<span class="type">int</span> num <span class="kw">in</span> nums) {
+    pq.<span class="fn">Enqueue</span>(num, num);
+    <span class="kw">if</span> (pq.Count &gt; k) pq.<span class="fn">Dequeue</span>();
+}
+
+<span class="cmt">// Dijkstra's algorithm</span>
+<span class="kw">var</span> dist = <span class="kw">new</span> <span class="type">PriorityQueue</span>&lt;<span class="type">int</span>, <span class="type">int</span>&gt;();
+dist.<span class="fn">Enqueue</span>(source, <span class="num">0</span>);
+<span class="kw">while</span> (dist.Count &gt; <span class="num">0</span>) {
+    dist.<span class="fn">TryDequeue</span>(<span class="kw">out</span> <span class="type">int</span> node, <span class="kw">out</span> <span class="type">int</span> d);
+    <span class="kw">if</span> (d &gt; best[node]) <span class="kw">continue</span>;
+    <span class="kw">foreach</span> (<span class="kw">var</span> (next, weight) <span class="kw">in</span> edges[node])
+        dist.<span class="fn">Enqueue</span>(next, d + weight);
+}</pre></div>
+          </div>
+          <div class="tab-panel" id="ds7-methods">
+            <table class="method-table"><tr><th>Method</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>Enqueue(elem, priority)</td><td>O(log n)</td><td>Insert with priority</td></tr>
+            <tr><td>Dequeue()</td><td>O(log n)</td><td>Remove min priority</td></tr>
+            <tr><td>Peek()</td><td>O(1)</td><td>View min without removing</td></tr>
+            <tr><td>TryDequeue(out e, out p)</td><td>O(log n)</td><td>Safe dequeue</td></tr>
+            <tr><td>Count</td><td>O(1)</td><td>Heap size</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds7-dsa">
+            <ul><li>Top K frequent/largest/smallest</li><li>Merge K sorted lists</li><li>Dijkstra shortest path</li><li>Find median from data stream</li><li>Task scheduler, meeting rooms</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 8: Sorted Collections -->
+      <div class="accordion" id="ds-8">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">8</span>SortedDictionary / SortedSet</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds8-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds8-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds8-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds8-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds8-overview">
+            <p class="section-intro">Red-black tree backed. Keys always sorted. O(log n) insert/delete/lookup. Use when you need order without re-sorting.</p>
+          </div>
+          <div class="tab-panel" id="ds8-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="kw">var</span> sorted = <span class="kw">new</span> <span class="type">SortedSet</span>&lt;<span class="type">int</span>&gt; { <span class="num">3</span>, <span class="num">1</span>, <span class="num">4</span>, <span class="num">1</span>, <span class="num">5</span> };
+<span class="cmt">// Contains: 1, 3, 4, 5 (duplicates ignored)</span>
+
+<span class="cmt">// Get ceiling (smallest &gt;= target) — no direct method, use:</span>
+<span class="type">int</span>? ceiling = sorted.<span class="fn">GetViewBetween</span>(target, <span class="type">int</span>.MaxValue).<span class="fn">Min</span>;
+
+<span class="kw">var</span> map = <span class="kw">new</span> <span class="type">SortedDictionary</span>&lt;<span class="type">int</span>, <span class="type">string</span>&gt;();
+map[<span class="num">2</span>] = <span class="str">"two"</span>;
+map[<span class="num">1</span>] = <span class="str">"one"</span>;
+<span class="cmt">// Iteration order: 1, 2</span></pre></div>
+          </div>
+          <div class="tab-panel" id="ds8-methods">
+            <table class="method-table"><tr><th>Method</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>Add / Remove</td><td>O(log n)</td><td>Insert / delete</td></tr>
+            <tr><td>Contains</td><td>O(log n)</td><td>Membership</td></tr>
+            <tr><td>Min / Max</td><td>O(log n)</td><td>SortedSet only</td></tr>
+            <tr><td>GetViewBetween(lo, hi)</td><td>O(log n)</td><td>Range view</td></tr>
+            <tr><td>Keys (sorted)</td><td>O(n)</td><td>Ordered iteration</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds8-dsa">
+            <ul><li>My Calendar I/II (range conflicts)</li><li>Count of smaller numbers after self</li><li>Range sum with ordered keys</li><li>When you need floor/ceiling queries</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 9: LinkedList -->
+      <div class="accordion" id="ds-9">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">9</span>LinkedList&lt;T&gt; — Deque</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds9-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds9-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds9-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds9-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds9-overview">
+            <p class="section-intro">Doubly linked list in BCL. C# has no built-in Deque — use LinkedList for O(1) add/remove at both ends.</p>
+            <div class="callout callout-warn"><div class="callout-title">No Built-in Deque</div>Use LinkedList&lt;T&gt; with AddFirst/AddLast/RemoveFirst/RemoveLast for sliding window max/min problems.</div>
+          </div>
+          <div class="tab-panel" id="ds9-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="cmt">// Deque for sliding window maximum</span>
+<span class="kw">var</span> deque = <span class="kw">new</span> <span class="type">LinkedList</span>&lt;<span class="type">int</span>&gt;(); <span class="cmt">// stores indices</span>
+<span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i &lt; nums.Length; i++) {
+    <span class="kw">while</span> (deque.Count &gt; <span class="num">0</span> &amp;&amp; nums[deque.Last.Value] &lt; nums[i])
+        deque.<span class="fn">RemoveLast</span>();
+    deque.<span class="fn">AddLast</span>(i);
+    <span class="kw">if</span> (deque.First.Value &lt;= i - k) deque.<span class="fn">RemoveFirst</span>();
+    <span class="kw">if</span> (i &gt;= k - <span class="num">1</span>) result.Add(nums[deque.First.Value]);
+}</pre></div>
+          </div>
+          <div class="tab-panel" id="ds9-methods">
+            <table class="method-table"><tr><th>Method</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>AddFirst(x) / AddLast(x)</td><td>O(1)</td><td>Insert at ends</td></tr>
+            <tr><td>RemoveFirst() / RemoveLast()</td><td>O(1)</td><td>Remove from ends</td></tr>
+            <tr><td>First / Last</td><td>O(1)</td><td>Access ends</td></tr>
+            <tr><td>AddAfter/Before(node, x)</td><td>O(1)</td><td>Insert relative to node</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds9-dsa">
+            <ul><li>Sliding window max/min (deque)</li><li>LRU cache (with Dictionary)</li><li>Palindrome checker with two ends</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 10: StringBuilder -->
+      <div class="accordion" id="ds-10">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">10</span>StringBuilder</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds10-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds10-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds10-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds10-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds10-overview">
+            <p class="section-intro">Mutable string buffer. Avoid O(n²) string concatenation in loops. Essential for building strings in backtracking and parsing.</p>
+          </div>
+          <div class="tab-panel" id="ds10-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="kw">var</span> sb = <span class="kw">new</span> <span class="type">StringBuilder</span>();
+<span class="kw">foreach</span> (<span class="type">char</span> c <span class="kw">in</span> path)
+    sb.<span class="fn">Append</span>(c);
+sb.<span class="fn">AppendLine</span>(); <span class="cmt">// append + newline</span>
+<span class="type">string</span> result = sb.<span class="fn">ToString</span>();
+
+<span class="cmt">// Backtracking — append, recurse, delete last char</span>
+sb.<span class="fn">Append</span>(nums[i]);
+<span class="fn">Backtrack</span>(sb, i + <span class="num">1</span>);
+sb.<span class="fn">Remove</span>(sb.Length - <span class="num">1</span>, <span class="num">1</span>);</pre></div>
+          </div>
+          <div class="tab-panel" id="ds10-methods">
+            <table class="method-table"><tr><th>Method</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>Append(x)</td><td>O(1)*</td><td>Add to end</td></tr>
+            <tr><td>Insert(i, x)</td><td>O(n)</td><td>Insert at index</td></tr>
+            <tr><td>Remove(i, count)</td><td>O(n)</td><td>Delete chars</td></tr>
+            <tr><td>Length</td><td>O(1)</td><td>Current length</td></tr>
+            <tr><td>ToString()</td><td>O(n)</td><td>Convert to string</td></tr>
+            <tr><td>Clear()</td><td>O(n)</td><td>Reset buffer</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds10-dsa">
+            <ul><li>String building in loops/backtracking</li><li>Parse and reconstruct strings</li><li>Word break, letter combinations</li><li>When concatenating in O(n) total matters</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 11: ListNode -->
+      <div class="accordion" id="ds-11">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">11</span>ListNode — Linked List Node</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds11-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds11-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds11-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds11-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds11-overview">
+            <p class="section-intro">Custom singly-linked node used in interview problems. Not a BCL type — you define it. Master pointer manipulation: fast/slow, reversal, merge.</p>
+          </div>
+          <div class="tab-panel" id="ds11-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="kw">public class</span> <span class="type">ListNode</span> {
+    <span class="kw">public int</span> val;
+    <span class="kw">public</span> <span class="type">ListNode</span> next;
+    <span class="kw">public</span> <span class="fn">ListNode</span>(<span class="type">int</span> val = <span class="num">0</span>, <span class="type">ListNode</span> next = <span class="kw">null</span>) {
+        <span class="kw">this</span>.val = val; <span class="kw">this</span>.next = next;
+    }
+}
+
+<span class="cmt">// Reverse linked list — iterative</span>
+<span class="type">ListNode</span> prev = <span class="kw">null</span>, curr = head;
+<span class="kw">while</span> (curr != <span class="kw">null</span>) {
+    <span class="type">ListNode</span> next = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = next;
+}
+<span class="kw">return</span> prev;
+
+<span class="cmt">// Fast/slow pointer — find middle</span>
+<span class="kw">var</span> slow = head; <span class="kw">var</span> fast = head;
+<span class="kw">while</span> (fast?.next != <span class="kw">null</span>) { slow = slow.next; fast = fast.next.next; }</pre></div>
+          </div>
+          <div class="tab-panel" id="ds11-methods">
+            <table class="method-table"><tr><th>Pattern</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>Traverse</td><td>O(n)</td><td>while (node != null) node = node.next</td></tr>
+            <tr><td>Reverse</td><td>O(n)</td><td>Three pointers: prev, curr, next</td></tr>
+            <tr><td>Fast/Slow</td><td>O(n)</td><td>Cycle detection, find middle</td></tr>
+            <tr><td>Merge two lists</td><td>O(n)</td><td>Dummy head + two pointers</td></tr>
+            <tr><td>Dummy node</td><td>O(1) setup</td><td>Simplifies head edge cases</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds11-dsa">
+            <ul><li>Reverse linked list, merge K lists</li><li>Cycle detection (Floyd's algorithm)</li><li>Reorder list, palindrome linked list</li><li>Remove nth node from end</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 12: TreeNode -->
+      <div class="accordion" id="ds-12">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">12</span>TreeNode — Binary Tree</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds12-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds12-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds12-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds12-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds12-overview">
+            <p class="section-intro">Binary tree node with left/right children. Traversals: inorder (BST sorted), preorder (serialize), postorder (delete), level-order (BFS).</p>
+          </div>
+          <div class="tab-panel" id="ds12-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="kw">public class</span> <span class="type">TreeNode</span> {
+    <span class="kw">public int</span> val;
+    <span class="kw">public</span> <span class="type">TreeNode</span> left, right;
+    <span class="kw">public</span> <span class="fn">TreeNode</span>(<span class="type">int</span> val = <span class="num">0</span>, <span class="type">TreeNode</span> l = <span class="kw">null</span>, <span class="type">TreeNode</span> r = <span class="kw">null</span>) {
+        <span class="kw">this</span>.val = val; left = l; right = r;
+    }
+}
+
+<span class="cmt">// DFS — inorder (left, root, right)</span>
+<span class="type">void</span> <span class="fn">Inorder</span>(<span class="type">TreeNode</span> node, <span class="type">List</span>&lt;<span class="type">int</span>&gt; res) {
+    <span class="kw">if</span> (node == <span class="kw">null</span>) <span class="kw">return</span>;
+    <span class="fn">Inorder</span>(node.left, res);
+    res.<span class="fn">Add</span>(node.val);
+    <span class="fn">Inorder</span>(node.right, res);
+}
+
+<span class="cmt">// Max depth — recursive DFS</span>
+<span class="type">int</span> <span class="fn">MaxDepth</span>(<span class="type">TreeNode</span> root) =>
+    root == <span class="kw">null</span> ? <span class="num">0</span> : <span class="num">1</span> + <span class="type">Math</span>.<span class="fn">Max</span>(<span class="fn">MaxDepth</span>(root.left), <span class="fn">MaxDepth</span>(root.right));</pre></div>
+          </div>
+          <div class="tab-panel" id="ds12-methods">
+            <table class="method-table"><tr><th>Traversal</th><th>Order</th><th>Use Case</th></tr>
+            <tr><td>Inorder</td><td>L → Root → R</td><td>BST sorted order</td></tr>
+            <tr><td>Preorder</td><td>Root → L → R</td><td>Serialize, copy tree</td></tr>
+            <tr><td>Postorder</td><td>L → R → Root</td><td>Delete tree, calc dirs</td></tr>
+            <tr><td>Level-order</td><td>BFS by level</td><td>Queue-based, zigzag</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds12-dsa">
+            <ul><li>Validate BST, LCA, max depth</li><li>Serialize/deserialize binary tree</li><li>Path sum, diameter of tree</li><li>Construct tree from traversals</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 13: Graph -->
+      <div class="accordion" id="ds-13">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">13</span>Graph — Adjacency List</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds13-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds13-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds13-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds13-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds13-overview">
+            <p class="section-intro">Graphs are built with adjacency lists — not a built-in type. Two common representations: Dictionary for sparse graphs, List[] for dense 0-indexed nodes.</p>
+          </div>
+          <div class="tab-panel" id="ds13-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="cmt">// Adjacency list — Dictionary (sparse)</span>
+<span class="kw">var</span> graph = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">int</span>, <span class="type">List</span>&lt;<span class="type">int</span>&gt;&gt;();
+<span class="kw">void</span> <span class="fn">AddEdge</span>(<span class="type">int</span> u, <span class="type">int</span> v) {
+    <span class="kw">if</span> (!graph.<span class="fn">ContainsKey</span>(u)) graph[u] = <span class="kw">new</span>();
+    graph[u].<span class="fn">Add</span>(v);
+}
+
+<span class="cmt">// Adjacency list — jagged array (0-indexed, dense)</span>
+<span class="type">int</span> n = <span class="num">5</span>;
+<span class="kw">var</span> adj = <span class="kw">new</span> <span class="type">List</span>&lt;<span class="type">int</span>&gt;[n];
+<span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i &lt; n; i++) adj[i] = <span class="kw">new</span>();
+adj[<span class="num">0</span>].<span class="fn">Add</span>(<span class="num">1</span>); adj[<span class="num">0</span>].<span class="fn">Add</span>(<span class="num">2</span>);
+
+<span class="cmt">// DFS on graph</span>
+<span class="type">void</span> <span class="fn">Dfs</span>(<span class="type">int</span> node, <span class="type">HashSet</span>&lt;<span class="type">int</span>&gt; visited) {
+    visited.<span class="fn">Add</span>(node);
+    <span class="kw">foreach</span> (<span class="type">int</span> nb <span class="kw">in</span> graph[node])
+        <span class="kw">if</span> (!visited.<span class="fn">Contains</span>(nb)) <span class="fn">Dfs</span>(nb, visited);
+}</pre></div>
+          </div>
+          <div class="tab-panel" id="ds13-methods">
+            <table class="method-table"><tr><th>Representation</th><th>Space</th><th>Best For</th></tr>
+            <tr><td>Dictionary&lt;int, List&lt;int&gt;&gt;</td><td>O(V+E)</td><td>Sparse, non-contiguous IDs</td></tr>
+            <tr><td>List&lt;int&gt;[]</td><td>O(V+E)</td><td>0..n-1 nodes, grids</td></tr>
+            <tr><td>int[,] matrix</td><td>O(V²)</td><td>Dense graphs, quick edge check</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds13-dsa">
+            <ul><li>Number of islands, course schedule</li><li>Clone graph, word ladder</li><li>Network delay (Dijkstra)</li><li>Topological sort, detect cycle</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 14: Trie -->
+      <div class="accordion" id="ds-14">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">14</span>Trie — Prefix Tree</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds14-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds14-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds14-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds14-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds14-overview">
+            <p class="section-intro">Tree for efficient string prefix operations. O(m) per operation where m = word length. Must implement yourself in C#.</p>
+          </div>
+          <div class="tab-panel" id="ds14-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="kw">public class</span> <span class="type">TrieNode</span> {
+    <span class="kw">public</span> <span class="type">Dictionary</span>&lt;<span class="type">char</span>, <span class="type">TrieNode</span>&gt; children = <span class="kw">new</span>();
+    <span class="kw">public bool</span> isEnd;
+}
+
+<span class="kw">public class</span> <span class="type">Trie</span> {
+    <span class="kw">private</span> <span class="type">TrieNode</span> root = <span class="kw">new</span>();
+
+    <span class="kw">public void</span> <span class="fn">Insert</span>(<span class="type">string</span> word) {
+        <span class="kw">var</span> node = root;
+        <span class="kw">foreach</span> (<span class="type">char</span> c <span class="kw">in</span> word) {
+            <span class="kw">if</span> (!node.children.<span class="fn">ContainsKey</span>(c))
+                node.children[c] = <span class="kw">new</span> <span class="type">TrieNode</span>();
+            node = node.children[c];
+        }
+        node.isEnd = <span class="kw">true</span>;
+    }
+
+    <span class="kw">public bool</span> <span class="fn">Search</span>(<span class="type">string</span> word) {
+        <span class="kw">var</span> node = <span class="fn">Walk</span>(word);
+        <span class="kw">return</span> node != <span class="kw">null</span> &amp;&amp; node.isEnd;
+    }
+
+    <span class="kw">public bool</span> <span class="fn">StartsWith</span>(<span class="type">string</span> prefix) =>
+        <span class="fn">Walk</span>(prefix) != <span class="kw">null</span>;
+}</pre></div>
+          </div>
+          <div class="tab-panel" id="ds14-methods">
+            <table class="method-table"><tr><th>Operation</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>Insert</td><td>O(m)</td><td>Add word character by character</td></tr>
+            <tr><td>Search</td><td>O(m)</td><td>Exact word lookup</td></tr>
+            <tr><td>StartsWith</td><td>O(m)</td><td>Prefix existence check</td></tr>
+            <tr><td>Delete</td><td>O(m)</td><td>Remove word, prune nodes</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds14-dsa">
+            <ul><li>Implement Trie, word search II</li><li>Autocomplete, prefix matching</li><li>Word break, longest word in dictionary</li><li>Replace words, map sum pairs</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DS 15: Union-Find -->
+      <div class="accordion" id="ds-15">
+        <button class="accordion-header"><span class="title-wrap"><span class="num">15</span>Union-Find — Disjoint Set</span><span class="chevron">▼</span></button>
+        <div class="accordion-body">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ds15-overview">Overview</button>
+            <button class="tab-btn" data-tab="ds15-code">Code Example</button>
+            <button class="tab-btn" data-tab="ds15-methods">Key Methods</button>
+            <button class="tab-btn" data-tab="ds15-dsa">DSA Use Cases</button>
+          </div>
+          <div class="tab-panel active" id="ds15-overview">
+            <p class="section-intro">Tracks connected components. Near O(1) amortized with path compression + union by rank. Essential for Kruskal's MST and dynamic connectivity.</p>
+          </div>
+          <div class="tab-panel" id="ds15-code">
+            <div class="code-wrap"><button class="copy-btn">Copy</button><pre><span class="kw">public class</span> <span class="type">UnionFind</span> {
+    <span class="kw">private int</span>[] parent, rank;
+
+    <span class="kw">public</span> <span class="fn">UnionFind</span>(<span class="type">int</span> n) {
+        parent = <span class="kw">new int</span>[n];
+        rank = <span class="kw">new int</span>[n];
+        <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i &lt; n; i++) parent[i] = i;
+    }
+
+    <span class="kw">public int</span> <span class="fn">Find</span>(<span class="type">int</span> x) {
+        <span class="kw">if</span> (parent[x] != x)
+            parent[x] = <span class="fn">Find</span>(parent[x]); <span class="cmt">// path compression</span>
+        <span class="kw">return</span> parent[x];
+    }
+
+    <span class="kw">public bool</span> <span class="fn">Union</span>(<span class="type">int</span> a, <span class="type">int</span> b) {
+        <span class="type">int</span> pa = <span class="fn">Find</span>(a), pb = <span class="fn">Find</span>(b);
+        <span class="kw">if</span> (pa == pb) <span class="kw">return false</span>;
+        <span class="kw">if</span> (rank[pa] &lt; rank[pb]) (pa, pb) = (pb, pa);
+        parent[pb] = pa;
+        <span class="kw">if</span> (rank[pa] == rank[pb]) rank[pa]++;
+        <span class="kw">return true</span>;
+    }
+}</pre></div>
+          </div>
+          <div class="tab-panel" id="ds15-methods">
+            <table class="method-table"><tr><th>Operation</th><th>Complexity</th><th>Description</th></tr>
+            <tr><td>Find(x)</td><td>~O(1)*</td><td>Get component root</td></tr>
+            <tr><td>Union(a, b)</td><td>~O(1)*</td><td>Merge two sets</td></tr>
+            <tr><td>Connected(a, b)</td><td>~O(1)*</td><td>Find(a) == Find(b)</td></tr>
+            <tr><td>Count components</td><td>O(n)</td><td>Track on union</td></tr></table>
+          </div>
+          <div class="tab-panel" id="ds15-dsa">
+            <ul><li>Number of connected components</li><li>Redundant connection, accounts merge</li><li>Kruskal's minimum spanning tree</li><li>Graph valid tree check</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pattern Index -->
+      <section id="patterns" class="pattern-section">
+        <h3>Pattern → Data Structure Index</h3>
+        <p class="section-intro">Quick map from problem type to the right C# tool. Open the linked section for details.</p>
+        <table>
+          <tr><th>Pattern</th><th>Primary Structures</th><th>Example Problems</th></tr>
+          <tr><td>Two Pointers</td><td>Array, List</td><td>Two Sum II, 3Sum, Container With Most Water</td></tr>
+          <tr><td>Sliding Window</td><td>Array, Dictionary, LinkedList (deque)</td><td>Longest Substring, Sliding Window Max</td></tr>
+          <tr><td>Binary Search</td><td>Array (sorted), List</td><td>Search Rotated Array, Find Peak</td></tr>
+          <tr><td>BFS</td><td>Queue, HashSet</td><td>Shortest Path, Word Ladder, Islands</td></tr>
+          <tr><td>DFS / Backtracking</td><td>Stack, recursion, List</td><td>Permutations, N-Queens, Subsets</td></tr>
+          <tr><td>Monotonic Stack</td><td>Stack</td><td>Next Greater Element, Largest Rectangle</td></tr>
+          <tr><td>Top K / Heap</td><td>PriorityQueue</td><td>Top K Frequent, Merge K Lists</td></tr>
+          <tr><td>Hash Map</td><td>Dictionary, HashSet</td><td>Two Sum, Group Anagrams</td></tr>
+          <tr><td>Dynamic Programming</td><td>Dictionary (memo), int[]</td><td>Coin Change, LIS, Edit Distance</td></tr>
+          <tr><td>Graph</td><td>Dictionary/List adjacency, Queue, Stack</td><td>Course Schedule, Clone Graph</td></tr>
+          <tr><td>Tree</td><td>TreeNode, Queue, Stack</td><td>LCA, Serialize Tree, Max Depth</td></tr>
+          <tr><td>Prefix / String</td><td>Trie, Dictionary</td><td>Word Search II, Word Break</td></tr>
+          <tr><td>Connectivity</td><td>UnionFind</td><td>Redundant Connection, Accounts Merge</td></tr>
+        </table>
+        <div class="callout callout-tip" style="margin-top:1rem">
+          <div class="callout-title">Ready for quick lookup?</div>
+          Switch to the <a href="csharp-dsa-cheatsheet.html" style="color:var(--accent)">Cheatsheet</a> for one-page syntax reference and compact templates.
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    const themeKey = 'csharp-dsa-theme';
+    const html = document.documentElement;
+    const saved = localStorage.getItem(themeKey);
+    if (saved) html.setAttribute('data-theme', saved);
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem(themeKey, next);
+    });
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+    window.addEventListener('scroll', () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      document.getElementById('progress-bar').style.width = (window.scrollY / h * 100) + '%';
+    });
+    document.querySelectorAll('.accordion-header').forEach(btn => {
+      btn.addEventListener('click', () => btn.closest('.accordion').classList.toggle('open'));
+    });
+    document.querySelectorAll('.tabs').forEach(tabGroup => {
+      tabGroup.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.tab;
+          tabGroup.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          tabGroup.parentElement.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          tabGroup.parentElement.querySelector('#' + id).classList.add('active');
+        });
+      });
+    });
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const code = btn.closest('.code-wrap').querySelector('pre').textContent;
+        navigator.clipboard.writeText(code).then(() => {
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+        });
+      });
+    });
+    const sections = document.querySelectorAll('[id^="ds-"], #intro, #patterns');
+    const navLinks = document.querySelectorAll('.sidebar a');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+</html>

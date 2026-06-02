@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C# DSA Cheatsheet</title>
+  <style>
+    :root, [data-theme="light"] {
+      --bg: #f4f6fb; --surface: #fff; --surface2: #eef1f8;
+      --text: #1a1d2e; --text-muted: #5a6278; --border: #d8deea;
+      --accent: #68217A; --accent2: #00BCD4; --accent-glow: rgba(104,33,122,.12);
+      --code-bg: #1e1e2e; --code-text: #cdd6f4;
+      --shadow: 0 2px 12px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d2e; --surface2: #252836;
+      --text: #e8eaf0; --text-muted: #9499b0; --border: #363a4f;
+      --accent: #c586c0; --accent2: #4ec9b0; --accent-glow: rgba(197,134,192,.15);
+      --code-bg: #0d0d14; --code-text: #d4d4d4;
+      --shadow: 0 2px 12px rgba(0,0,0,.35);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+    .header { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: var(--shadow); }
+    .header h1 { font-size: 1.25rem; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-actions { display: flex; gap: .75rem; align-items: center; }
+    .btn { padding: .4rem .85rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); cursor: pointer; font-size: .85rem; text-decoration: none; transition: all .2s; }
+    .btn:hover { border-color: var(--accent); }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .theme-toggle { width: 44px; height: 24px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); cursor: pointer; position: relative; }
+    .theme-toggle::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); top: 2px; left: 2px; transition: transform .2s; }
+    [data-theme="light"] .theme-toggle::after { transform: translateX(20px); }
+    .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+    .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem; }
+    .chip { padding: .35rem .85rem; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; font-size: .8rem; font-weight: 500; transition: all .15s; }
+    .chip:hover, .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+    .card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .card-front { padding: 1rem 1.15rem; cursor: pointer; }
+    .card-front h3 { font-size: .95rem; font-family: monospace; color: var(--accent); margin-bottom: .35rem; }
+    .card-front p { font-size: .8rem; color: var(--text-muted); }
+    .card-meta { display: flex; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
+    .tag { font-size: .65rem; padding: .15rem .5rem; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .tag-linear { background: rgba(22,163,74,.15); color: #16a34a; }
+    .tag-hash { background: rgba(0,188,212,.15); color: var(--accent2); }
+    .tag-tree { background: rgba(104,33,122,.15); color: var(--accent); }
+    .tag-heap { background: rgba(217,119,6,.15); color: #d97706; }
+    .tag-custom { background: rgba(220,38,38,.15); color: #dc2626; }
+    .complexity { font-size: .7rem; font-family: monospace; color: var(--text-muted); }
+    .card-back { display: none; padding: 0 1.15rem 1.15rem; border-top: 1px dashed var(--border); }
+    .card.expanded .card-back { display: block; }
+    .card-back h4 { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin: .75rem 0 .4rem; }
+    .card-back ul { font-size: .78rem; padding-left: 1.1rem; color: var(--text-muted); }
+    .card-back li { margin-bottom: .2rem; }
+    .mini-code { background: var(--code-bg); color: var(--code-text); padding: .65rem .85rem; border-radius: 8px; font-family: Consolas, monospace; font-size: .72rem; overflow-x: auto; margin-top: .5rem; white-space: pre; }
+    .section { margin-top: 2.5rem; }
+    .section h2 { font-size: 1.1rem; margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--accent); display: inline-block; }
+    table { width: 100%; border-collapse: collapse; font-size: .8rem; background: var(--surface); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    th, td { padding: .55rem .75rem; border: 1px solid var(--border); text-align: left; }
+    th { background: var(--surface2); font-weight: 600; }
+    .gotcha-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .gotcha { background: var(--surface); border-left: 4px solid #d97706; border-radius: 0 10px 10px 0; padding: 1rem; border: 1px solid var(--border); border-left: 4px solid #d97706; }
+    .gotcha strong { display: block; margin-bottom: .35rem; color: #d97706; font-size: .85rem; }
+    .gotcha p { font-size: .8rem; color: var(--text-muted); }
+    .template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+    .template { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; position: relative; }
+    .template h4 { font-size: .85rem; color: var(--accent); margin-bottom: .5rem; }
+    .copy-sm { position: absolute; top: .5rem; right: .5rem; font-size: .65rem; padding: .2rem .45rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; color: var(--text-muted); }
+    .copy-sm.copied { background: #16a34a; color: #fff; }
+    .card.hidden { display: none; }
+    @media (max-width: 600px) { .container { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>C# DSA Cheatsheet</h1>
+    <div class="header-actions">
+      <a href="csharp-dsa-guide.html" class="btn btn-primary">📖 Full Guide</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="filters" id="filters">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="linear">Linear</button>
+      <button class="chip" data-filter="hash">Hash</button>
+      <button class="chip" data-filter="tree">Tree</button>
+      <button class="chip" data-filter="heap">Heap</button>
+      <button class="chip" data-filter="custom">Custom</button>
+    </div>
+
+    <div class="card-grid" id="cardGrid">
+      <!-- Cards injected by structure - using static HTML -->
+    </div>
+
+    <section class="section" id="pattern-matrix">
+      <h2>Pattern Matrix</h2>
+      <table>
+        <tr><th>Pattern</th><th>Structures</th><th>Time</th></tr>
+        <tr><td>Two Pointers</td><td>Array, List</td><td>O(n)</td></tr>
+        <tr><td>Sliding Window</td><td>Array, Dictionary, LinkedList</td><td>O(n)</td></tr>
+        <tr><td>Binary Search</td><td>Sorted Array/List</td><td>O(log n)</td></tr>
+        <tr><td>BFS</td><td>Queue + HashSet</td><td>O(V+E)</td></tr>
+        <tr><td>DFS</td><td>Stack / recursion + HashSet</td><td>O(V+E)</td></tr>
+        <tr><td>Monotonic Stack</td><td>Stack</td><td>O(n)</td></tr>
+        <tr><td>Top K</td><td>PriorityQueue</td><td>O(n log k)</td></tr>
+        <tr><td>DP Memo</td><td>Dictionary, int[]</td><td>varies</td></tr>
+        <tr><td>Shortest Path (weighted)</td><td>PriorityQueue + Dictionary</td><td>O(E log V)</td></tr>
+        <tr><td>Connectivity</td><td>UnionFind</td><td>~O(α(n))</td></tr>
+        <tr><td>Prefix Search</td><td>Trie</td><td>O(m) per op</td></tr>
+      </table>
+    </section>
+
+    <section class="section" id="gotchas">
+      <h2>C# Gotchas</h2>
+      <div class="gotcha-grid">
+        <div class="gotcha"><strong>No Built-in Deque</strong><p>Use LinkedList with AddFirst/AddLast/RemoveFirst/RemoveLast for sliding window problems.</p></div>
+        <div class="gotcha"><strong>Max-Heap in PriorityQueue</strong><p>Negate priorities: Enqueue(x, -x). Or use Comparer.Create((a,b) =&gt; b.CompareTo(a)).</p></div>
+        <div class="gotcha"><strong>jagged vs multidimensional</strong><p>int[][] for graphs (ragged rows). int[,] for grids — different indexing syntax.</p></div>
+        <div class="gotcha"><strong>BinarySearch returns ~idx</strong><p>Negative result means insertion point: idx = ~Array.BinarySearch(arr, x).</p></div>
+        <div class="gotcha"><strong>HashSet.Add returns bool</strong><p>false = already exists. Perfect for visited check in one line.</p></div>
+        <div class="gotcha"><strong>String concat in loops</strong><p>Use StringBuilder — repeated += is O(n²) total time.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="templates">
+      <h2>Quick Templates</h2>
+      <div class="template-grid">
+        <div class="template">
+          <button class="copy-sm">Copy</button>
+          <h4>BFS</h4>
+          <div class="mini-code">var q = new Queue&lt;int&gt;();
+var vis = new HashSet&lt;int&gt;();
+q.Enqueue(start); vis.Add(start);
+while (q.Count > 0) {
+  var n = q.Dequeue();
+  foreach (var nb in graph[n])
+    if (vis.Add(nb)) q.Enqueue(nb);
+}</div>
+        </div>
+        <div class="template">
+          <button class="copy-sm">Copy</button>
+          <h4>DFS (recursive)</h4>
+          <div class="mini-code">void Dfs(int node, HashSet&lt;int&gt; vis) {
+  vis.Add(node);
+  foreach (var nb in graph[node])
+    if (!vis.Contains(nb)) Dfs(nb, vis);
+}</div>
+        </div>
+        <div class="template">
+          <button class="copy-sm">Copy</button>
+          <h4>Binary Search</h4>
+          <div class="mini-code">int lo = 0, hi = n - 1;
+while (lo <= hi) {
+  int mid = lo + (hi - lo) / 2;
+  if (nums[mid] == target) return mid;
+  if (nums[mid] < target) lo = mid + 1;
+  else hi = mid - 1;
+}
+return -1;</div>
+        </div>
+        <div class="template">
+          <button class="copy-sm">Copy</button>
+          <h4>Monotonic Stack</h4>
+          <div class="mini-code">var st = new Stack&lt;int&gt;();
+for (int i = 0; i < n; i++) {
+  while (st.Count > 0 &amp;&amp; nums[st.Peek()] &lt; nums[i])
+    ans[st.Pop()] = nums[i];
+  st.Push(i);
+}</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const CARDS = [
+      { id:'array', name:'T[] Array', cat:'linear', tag:'linear', desc:'Fixed-size, O(1) index access', comp:'Access O(1) · Sort O(n log n)',
+        create:'int[] arr = new int[n];', methods:['arr[i] — index O(1)','Array.Sort(arr) — O(n log n)','Array.BinarySearch(arr,x) — O(log n)','Array.Reverse(arr) — O(n)','arr.Length — size O(1)'],
+        patterns:['Two pointers','Sliding window','Binary search'],
+        code:'int l=0, r=arr.Length-1;\nwhile(l<r){ /* two ptr */ }' },
+      { id:'list', name:'List<T>', cat:'linear', tag:'linear', desc:'Dynamic array, resizable buffer', comp:'Add O(1)* · Insert O(n)',
+        create:'var list = new List<int>();', methods:['Add(x) — O(1)* append','Insert(i,x) — O(n)','RemoveAt(i) — O(n)','Sort() — O(n log n)','BinarySearch(x) — O(log n)','Count — O(1)'],
+        patterns:['Build results','Merge intervals','DP tabulation'],
+        code:'var res = new List<int>();\nres.Add(x); res.Sort();' },
+      { id:'dict', name:'Dictionary<K,V>', cat:'hash', tag:'hash', desc:'Hash map, key-value store', comp:'Get/Put O(1)* avg',
+        create:'var map = new Dictionary<int,int>();', methods:['map[key]=val — set O(1)*','TryGetValue(k,out v) — safe get','ContainsKey(k) — O(1)*','GetValueOrDefault(k,d) — default','Remove(k) — O(1)*'],
+        patterns:['Two Sum','Frequency count','Memoization'],
+        code:'map[c]=map.GetValueOrDefault(c,0)+1;' },
+      { id:'hashset', name:'HashSet<T>', cat:'hash', tag:'hash', desc:'Unique elements, fast lookup', comp:'Contains O(1)* avg',
+        create:'var set = new HashSet<int>();', methods:['Add(x) — returns false if exists','Contains(x) — O(1)*','Remove(x) — O(1)*','UnionWith(s) — union','IntersectWith(s) — intersect'],
+        patterns:['Visited tracking','Cycle detection','Dedup'],
+        code:'if(!set.Add(node)) continue;' },
+      { id:'stack', name:'Stack<T>', cat:'linear', tag:'linear', desc:'LIFO — last in, first out', comp:'Push/Pop O(1)',
+        create:'var st = new Stack<int>();', methods:['Push(x) — O(1)','Pop() — O(1) remove top','Peek() — O(1) view top','Count — O(1)'],
+        patterns:['Valid parentheses','Monotonic stack','Iterative DFS'],
+        code:'st.Push(x);\nint top = st.Pop();' },
+      { id:'queue', name:'Queue<T>', cat:'linear', tag:'linear', desc:'FIFO — first in, first out', comp:'Enqueue/Dequeue O(1)',
+        create:'var q = new Queue<int>();', methods:['Enqueue(x) — O(1)','Dequeue() — O(1)','Peek() — O(1)','Count — O(1)'],
+        patterns:['BFS','Level-order traversal','Kahn topo sort'],
+        code:'q.Enqueue(start);\nvar n = q.Dequeue();' },
+      { id:'pq', name:'PriorityQueue<E,P>', cat:'heap', tag:'heap', desc:'Min-heap by default (.NET 6+)', comp:'Enqueue/Dequeue O(log n)',
+        create:'var pq = new PriorityQueue<int,int>();', methods:['Enqueue(e,p) — O(log n)','Dequeue() — min O(log n)','Peek() — O(1)','TryDequeue(out e,out p)','Count — O(1)'],
+        patterns:['Top K','Dijkstra','Merge K lists'],
+        code:'pq.Enqueue(num,num);\nif(pq.Count>k) pq.Dequeue();' },
+      { id:'sorted', name:'SortedSet / SortedDict', cat:'tree', tag:'tree', desc:'Red-black tree, sorted keys', comp:'Ops O(log n)',
+        create:'var ss = new SortedSet<int>();', methods:['Add/Remove — O(log n)','Contains — O(log n)','Min/Max — O(log n)','GetViewBetween(lo,hi)','Keys sorted iteration'],
+        patterns:['Calendar problems','Floor/ceiling','Range queries'],
+        code:'var ss = new SortedSet<int>{3,1,4};' },
+      { id:'linkedlist', name:'LinkedList<T>', cat:'linear', tag:'linear', desc:'Doubly linked — use as deque', comp:'End ops O(1)',
+        create:'var dq = new LinkedList<int>();', methods:['AddFirst/AddLast — O(1)','RemoveFirst/RemoveLast — O(1)','First/Last — O(1)'],
+        patterns:['Sliding window max','LRU cache helper','Deque simulation'],
+        code:'dq.AddLast(i);\ndq.RemoveFirst();' },
+      { id:'sb', name:'StringBuilder', cat:'linear', tag:'linear', desc:'Mutable string buffer', comp:'Append O(1)*',
+        create:'var sb = new StringBuilder();', methods:['Append(x) — O(1)*','Insert(i,x) — O(n)','Remove(i,cnt) — O(n)','ToString() — O(n)','Length — O(1)'],
+        patterns:['Backtracking strings','Loop building','Parse/rebuild'],
+        code:'sb.Append(c);\nsb.Remove(sb.Length-1,1);' },
+      { id:'listnode', name:'ListNode', cat:'custom', tag:'custom', desc:'Singly linked list node', comp:'Traverse O(n)',
+        create:'public class ListNode { int val; ListNode next; }', methods:['Reverse — 3 pointers','Fast/slow — cycle','Dummy head — edge cases','Merge — two pointers'],
+        patterns:['Reverse list','Cycle detect','Merge lists'],
+        code:'ListNode prev=null, cur=head;\nwhile(cur!=null){...}' },
+      { id:'treenode', name:'TreeNode', cat:'custom', tag:'custom', desc:'Binary tree node', comp:'Visit O(n)',
+        create:'public class TreeNode { int val; TreeNode left,right; }', methods:['Inorder — L Root R','Preorder — Root L R','Postorder — L R Root','Level-order — Queue'],
+        patterns:['BST validate','LCA','Serialize'],
+        code:'if(node==null) return;\nInorder(node.left,res);' },
+      { id:'graph', name:'Graph (adj list)', cat:'custom', tag:'custom', desc:'Dictionary or List[] adjacency', comp:'Space O(V+E)',
+        create:'var g = new List<int>[n];', methods:['Add edge to adj[u]','BFS with Queue','DFS recursive/Stack','Topo sort — Kahn/indegree'],
+        patterns:['Islands','Course schedule','Clone graph'],
+        code:'var adj = new List<int>[n];\nfor(int i=0;i<n;i++) adj[i]=new();' },
+      { id:'trie', name:'Trie', cat:'custom', tag:'custom', desc:'Prefix tree for strings', comp:'Op O(m) word len',
+        create:'Dictionary<char,TrieNode> children', methods:['Insert(word) — O(m)','Search(word) — O(m)','StartsWith(pre) — O(m)','Delete — O(m) prune'],
+        patterns:['Word search II','Autocomplete','Word break'],
+        code:'node.children[c]=new TrieNode();' },
+      { id:'uf', name:'UnionFind', cat:'custom', tag:'custom', desc:'Disjoint set union', comp:'~O(α(n)) amortized',
+        create:'int[] parent, rank;', methods:['Find(x) — path compression','Union(a,b) — by rank','Connected — Find(a)==Find(b)','Track component count'],
+        patterns:['Redundant connection','Kruskal MST','Accounts merge'],
+        code:'if(Find(a)==Find(b)) return false;\nparent[pb]=pa;' }
+    ];
+
+    const grid = document.getElementById('cardGrid');
+    CARDS.forEach(c => {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.dataset.category = c.cat;
+      el.innerHTML = `
+        <div class="card-front">
+          <h3>${c.name}</h3>
+          <p>${c.desc}</p>
+          <div class="card-meta">
+            <span class="tag tag-${c.tag}">${c.cat}</span>
+            <span class="complexity">${c.comp}</span>
+          </div>
+        </div>
+        <div class="card-back">
+          <h4>Create</h4>
+          <div class="mini-code">${c.create}</div>
+          <h4>Key Methods</h4>
+          <ul>${c.methods.map(m=>'<li>'+m+'</li>').join('')}</ul>
+          <h4>DSA Patterns</h4>
+          <ul>${c.patterns.map(p=>'<li>'+p+'</li>').join('')}</ul>
+          <h4>Snippet</h4>
+          <div class="mini-code">${c.code}</div>
+        </div>`;
+      el.querySelector('.card-front').addEventListener('click', () => el.classList.toggle('expanded'));
+      grid.appendChild(el);
+    });
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const f = chip.dataset.filter;
+        document.querySelectorAll('.card').forEach(card => {
+          card.classList.toggle('hidden', f !== 'all' && card.dataset.category !== f);
+        });
+      });
+    });
+
+    const themeKey = 'csharp-dsa-theme';
+    const html = document.documentElement;
+    const saved = localStorage.getItem(themeKey);
+    if (saved) html.setAttribute('data-theme', saved);
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem(themeKey, next);
+    });
+
+    document.querySelectorAll('.copy-sm').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const code = btn.closest('.template').querySelector('.mini-code').textContent;
+        navigator.clipboard.writeText(code).then(() => {
+          btn.textContent = 'OK';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
